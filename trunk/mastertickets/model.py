@@ -11,7 +11,7 @@ import copy
 from datetime import datetime
 
 from trac.ticket.model import Ticket
-from trac.util.compat import set, sorted
+from trac.util.compat import any, set, sorted
 from trac.util.datefmt import utc, to_utimestamp
 
 
