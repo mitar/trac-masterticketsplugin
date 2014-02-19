@@ -123,7 +123,7 @@ class TicketLinks(object):
         #     if isisntance(tkt, Ticket):
         #         tkt = tkt.id
         #     data.append((tkt, self.tkt.id))
-        # 
+        #
         # cursor.executemany('INSERT INTO mastertickets (source, dest) VALUES (%s, %s)', data)
 
         if handle_commit:
