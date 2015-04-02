@@ -15,12 +15,12 @@ from genshi.builder import tag
 
 from trac.config import BoolOption, ChoiceOption, ListOption, Option
 from trac.core import Component, TracError, implements
-from trac.resource import ResourceNotFound
+from trac.resource import ResourceNotFound, get_resource_summary
 from trac.ticket.model import Ticket
 from trac.ticket.query import Query
 from trac.util import escape, to_unicode
 from trac.util.compat import set, sorted, partial
-from trac.util.text import shorten_line
+from trac.util.presentation import classes
 from trac.util.translation import _
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import ITemplateProvider, add_ctxtnav, add_script
@@ -315,9 +315,9 @@ class MasterTicketsModule(Component):
                         word = \
                             tag.a(
                                 '#%s' % ticket.id,
-                                class_=ticket['status'],
-                                href=req.href.ticket(int(ticket.id)),
-                                title=shorten_line(ticket['summary'])
+                                href=req.href.ticket(ticket.id),
+                                class_=classes(ticket['status'], 'ticket'),
+                                title=get_resource_summary(self.env, ticket.resource)
                             )
                 except ResourceNotFound:
                     pass

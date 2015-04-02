@@ -13,7 +13,7 @@ from setuptools import setup
 
 setup(
     name='TracMasterTickets',
-    version='3.0.5',
+    version='4.0.0',
     packages=['mastertickets'],
     package_data={
         'mastertickets': [
