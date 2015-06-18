@@ -70,9 +70,12 @@ class TicketLinks(object):
                     update_field = lambda lst: lst.remove(str(self.tkt.id))
 
                 if update_field is not None:
-                    old_value = self.env.db_query("""
-                        SELECT value FROM ticket_custom WHERE ticket=%s AND name=%s
-                        """, (n, field))[0][0]
+                    old_value = None
+                    for old_value, in self.env.db_query("""
+                            SELECT value FROM ticket_custom
+                            WHERE ticket=%s AND name=%s
+                            """, (n, field)):
+                        break
                     if old_value:
                         new_value = [x.strip() for x in old_value.split(',') if x.strip()]
                     else:
