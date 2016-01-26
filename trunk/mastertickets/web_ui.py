@@ -8,6 +8,7 @@
 #
 
 import graphviz
+import os
 import re
 import subprocess
 
@@ -181,6 +182,10 @@ class MasterTicketsModule(Component):
         realm = req.args['realm']
         id = req.args['id']
 
+        if not which(self.dot_path):
+            raise TracError(_("Path to dot executable is invalid: %(path)s",
+                              path=self.dot_path))
+
         #Urls to generate the depgraph for a ticket is /depgraph/ticketnum
         #Urls to generate the depgraph for a milestone is /depgraph/milestone/milestone_name
 
@@ -328,3 +333,22 @@ class MasterTicketsModule(Component):
             return tag(items)
         else:
             return None
+
+
+def which(program):
+
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
