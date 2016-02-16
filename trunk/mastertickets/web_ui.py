@@ -70,58 +70,59 @@ class MasterTicketsModule(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
-        if req.path_info.startswith('/ticket/'):
-            # In case of an invalid ticket, the data is invalid
-            if not data:
-                return template, data, content_type
-            tkt = data['ticket']
-            links = TicketLinks(self.env, tkt)
+        if template is not None:
+            if req.path_info.startswith('/ticket/'):
+                # In case of an invalid ticket, the data is invalid
+                if not data:
+                    return template, data, content_type
+                tkt = data['ticket']
+                links = TicketLinks(self.env, tkt)
 
-            for i in links.blocked_by:
-                if Ticket(self.env, i)['status'] != 'closed':
-                    add_script(req, 'mastertickets/js/disable_resolve.js')
-                    break
+                for i in links.blocked_by:
+                    if Ticket(self.env, i)['status'] != 'closed':
+                        add_script(req, 'mastertickets/js/disable_resolve.js')
+                        break
 
-            # Add link to depgraph if needed
-            if links:
-                add_ctxtnav(req, 'Depgraph', req.href.depgraph('ticket', tkt.id))
+                # Add link to depgraph if needed
+                if links:
+                    add_ctxtnav(req, 'Depgraph', req.href.depgraph('ticket', tkt.id))
 
-            for change in data.get('changes', {}):
-                if not 'fields' in change:
-                    continue
-                for field, field_data in change['fields'].iteritems():
-                    if field in self.fields:
-                        if field_data['new'].strip():
-                            new = set([int(n) for n in field_data['new'].split(',')])
-                        else:
-                            new = set()
-                        if field_data['old'].strip():
-                            old = set([int(n) for n in field_data['old'].split(',')])
-                        else:
-                            old = set()
-                        add = new - old
-                        sub = old - new
-                        elms = tag()
-                        if add:
-                            elms.append(
-                                tag.em(u', '.join([unicode(n) for n in sorted(add)]))
-                            )
-                            elms.append(u' added')
-                        if add and sub:
-                            elms.append(u'; ')
-                        if sub:
-                            elms.append(
-                                tag.em(u', '.join([unicode(n) for n in sorted(sub)]))
-                            )
-                            elms.append(u' removed')
-                        field_data['rendered'] = elms
+                for change in data.get('changes', {}):
+                    if not 'fields' in change:
+                        continue
+                    for field, field_data in change['fields'].iteritems():
+                        if field in self.fields:
+                            if field_data['new'].strip():
+                                new = set([int(n) for n in field_data['new'].split(',')])
+                            else:
+                                new = set()
+                            if field_data['old'].strip():
+                                old = set([int(n) for n in field_data['old'].split(',')])
+                            else:
+                                old = set()
+                            add = new - old
+                            sub = old - new
+                            elms = tag()
+                            if add:
+                                elms.append(
+                                    tag.em(u', '.join([unicode(n) for n in sorted(add)]))
+                                )
+                                elms.append(u' added')
+                            if add and sub:
+                                elms.append(u'; ')
+                            if sub:
+                                elms.append(
+                                    tag.em(u', '.join([unicode(n) for n in sorted(sub)]))
+                                )
+                                elms.append(u' removed')
+                            field_data['rendered'] = elms
 
-        #add a link to generate a dependency graph for all the tickets in the milestone
-        if req.path_info.startswith('/milestone/'):
-            if not data:
-                return template, data, content_type
-            milestone = data['milestone']
-            add_ctxtnav(req, 'Depgraph', req.href.depgraph('milestone', milestone.name))
+            # add a link to generate a dependency graph for all the tickets in the milestone
+            if req.path_info.startswith('/milestone/'):
+                if not data:
+                    return template, data, content_type
+                milestone = data['milestone']
+                add_ctxtnav(req, 'Depgraph', req.href.depgraph('milestone', milestone.name))
 
         return template, data, content_type
 
