@@ -19,10 +19,10 @@ from trac.core import Component, TracError, implements
 from trac.resource import ResourceNotFound, get_resource_summary
 from trac.ticket.model import Ticket
 from trac.ticket.query import Query
-from trac.util import escape, to_unicode
+from trac.util import as_int, escape, to_unicode
 from trac.util.compat import set, sorted, partial
 from trac.util.presentation import classes
-from trac.util.translation import _
+from trac.util.translation import _, tag_
 from trac.web.api import IRequestFilter, IRequestHandler, ITemplateStreamFilter
 from trac.web.chrome import ITemplateProvider, add_ctxtnav, add_script
 
@@ -172,7 +172,7 @@ class MasterTicketsModule(Component):
 
     # IRequestHandler methods
     def match_request(self, req):
-        match = re.match(r'^/depgraph/(?P<realm>ticket|milestone)/(?P<id>((?!depgraph.png).)+)(/depgraph.png)?$',
+        match = re.match(r'^/depgraph/(?P<realm>ticket|milestone)/(?P<id>((?!depgraph.png)[^/])+)(/depgraph.png)?$',
                          req.path_info)
         if match:
             req.args['realm'] = match.group('realm')
@@ -197,8 +197,11 @@ class MasterTicketsModule(Component):
             query = Query(self.env, constraints={'milestone': [id]}, max=0)
             tkt_ids = [fields['id'] for fields in query.execute(req)]
         else:
-            #the list is a single ticket
-            tkt_ids = [int(id)]
+            tid = as_int(id, None)
+            if tid is None:
+                raise TracError(tag_("%(id)s is not a valid ticket id.",
+                                     id=tag.tt(id)))
+            tkt_ids = [tid]
 
         #the summary argument defines whether we place the ticket id or
         #its summary in the node's label
