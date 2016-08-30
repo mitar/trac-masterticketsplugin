@@ -172,7 +172,7 @@ class MasterTicketsModule(Component):
 
     # IRequestHandler methods
     def match_request(self, req):
-        match = re.match(r'^/depgraph/(?P<realm>ticket|milestone)/(?P<id>((?!depgraph.png)[^/])+)(/depgraph.png)?$',
+        match = re.match(r'^/depgraph/(?P<realm>ticket|milestone)/(?P<id>((?!depgraph.png).)+)(/depgraph.png)?$',
                          req.path_info)
         if match:
             req.args['realm'] = match.group('realm')
