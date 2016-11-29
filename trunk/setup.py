@@ -50,6 +50,7 @@ setup(
         'Programming Language :: Python',
     ],
 
+    install_requires=['Trac'],
     test_suite='mastertickets.tests.suite',
     entry_points={
         'trac.plugins': [
