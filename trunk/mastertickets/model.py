@@ -81,7 +81,7 @@ class TicketLinks(object):
                         update_field = remove_id
 
                     if update_field is not None:
-                        old_value = []
+                        old_value = None
                         ticket_custom_row_exists = False
                         for old_value, in db("""
                                 SELECT value FROM ticket_custom
