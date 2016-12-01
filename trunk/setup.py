@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2007-2012 Noah Kantrowitz <noah@coderanger.net>
+# Copyright (c) 2013-2016 Ryan J Ollos <ryan.j.ollos@gmail.com>
+#
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -29,14 +31,15 @@ setup(
     author_email='noah@coderanger.net',
     maintainer='Ryan J Ollos',
     maintainer_email='ryan.j.ollos@gmail.com',
-    description='Provides support for ticket dependencies and master tickets.',
-    long_description=open(os.path.join(os.path.dirname(__file__), 'README')).read(),
+    description='Provides ticket dependencies and master tickets.',
+    long_description=open(os.path.join(os.path.dirname(__file__),
+                                       'README')).read(),
     license='BSD 3-Clause',
     keywords='trac plugin ticket dependencies master',
-    url='http://trac-hacks.org/wiki/MasterTicketsPlugin',
+    url='https://trac-hacks.org/wiki/MasterTicketsPlugin',
     classifiers=[
         'Framework :: Trac',
-        #'Development Status :: 1 - Planning',
+        # 'Development Status :: 1 - Planning',
         # 'Development Status :: 2 - Pre-Alpha',
         # 'Development Status :: 3 - Alpha',
         # 'Development Status :: 4 - Beta',

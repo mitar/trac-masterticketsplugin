@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2007-2012 Noah Kantrowitz <noah@coderanger.net>
+# Copyright (c) 2013-2016 Ryan J Ollos <ryan.j.ollos@gmail.com>
+#
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
 
-import subprocess
 import itertools
+import subprocess
 
-from trac.util.compat import set
 from trac.util.text import to_unicode
 from trac.util.translation import _
 
 
 def _format_options(base_string, options):
-    return u'%s [%s]' % (base_string, u', '.join([u'%s="%s"' % x for x in options.iteritems()]))
+    return u'%s [%s]' \
+           % (base_string,
+              u', '.join(u'%s="%s"' % x for x in options.iteritems()))
 
 
 class Edge(dict):
@@ -107,20 +110,20 @@ class Graph(object):
         memo = set()
 
         def process(lst):
-            for obj in lst:
-                if obj in memo:
+            for item in lst:
+                if item in memo:
                     continue
-                memo.add(obj)
+                memo.add(item)
 
-                if isinstance(obj, Node):
-                    nodes.append(obj)
-                    process(obj.edges)
-                elif isinstance(obj, Edge):
-                    edges.append(obj)
-                    if isinstance(obj.source, Node):
-                        process((obj.source,))
-                    if isinstance(obj.dest, Node):
-                        process((obj.dest,))
+                if isinstance(item, Node):
+                    nodes.append(item)
+                    process(item.edges)
+                elif isinstance(item, Edge):
+                    edges.append(item)
+                    if isinstance(item.source, Node):
+                        process((item.source,))
+                    if isinstance(item.dest, Node):
+                        process((item.dest,))
 
         process(self.nodes)
         process(self.edges)
@@ -141,8 +144,9 @@ class Graph(object):
                              stderr=subprocess.PIPE)
         out, error = p.communicate(to_unicode(self).encode('utf8'))
         if error or p.returncode and self.log:
-            self.log.error(_("dot %(dot_path)s failed with code %(rc)s: %(error)s",
-                             dot_path=dot_path, rc=p.returncode, error=error))
+            self.log.error(_("dot %(dot_path)s failed with code %(rc)s: "
+                             "%(error)s", dot_path=dot_path, rc=p.returncode,
+                             error=error))
         return out
 
 
