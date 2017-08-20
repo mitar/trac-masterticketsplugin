@@ -11,12 +11,12 @@
 #
 
 import os
-from setuptools import setup
+from setuptools import find_packages, setup
 
 setup(
     name='TracMasterTickets',
     version='4.0.1',
-    packages=['mastertickets'],
+    packages=find_packages(exclude=['*.tests']),
     package_data={
         'mastertickets': [
             'htdocs/img/*.gif',
