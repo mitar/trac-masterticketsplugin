@@ -143,10 +143,10 @@ class Graph(object):
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         out, error = p.communicate(to_unicode(self).encode('utf8'))
-        if error or p.returncode and self.log:
-            self.log.error(_("dot %(dot_path)s failed with code %(rc)s: "
-                             "%(error)s", dot_path=dot_path, rc=p.returncode,
-                             error=error))
+        if self.log and error or p.returncode:
+            self.log.warning(_("dot command '%(cmd)s' failed with code "
+                               "%(rc)s: %(error)s", cmd=cmd, rc=p.returncode,
+                               error=error))
         return out
 
 
