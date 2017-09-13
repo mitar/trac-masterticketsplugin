@@ -145,8 +145,8 @@ class Graph(object):
         out, error = p.communicate(to_unicode(self).encode('utf8'))
         if self.log and error or p.returncode:
             self.log.warning(_("dot command '%(cmd)s' failed with code "
-                               "%(rc)s: %(error)s", cmd=cmd, rc=p.returncode,
-                               error=error))
+                               "%(rc)s: %(error)s", cmd=' '.join(cmd),
+                               rc=p.returncode, error=error))
         return out
 
 
