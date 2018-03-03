@@ -36,12 +36,12 @@ class MasterTicketsSystem(Component):
         with self.env.db_transaction as db:
             self.upgrade_environment(db)
 
-    def environment_needs_upgrade(self, db):
+    def environment_needs_upgrade(self, db=None):
         dbm = DatabaseManager(self.env)
         return dbm.needs_upgrade(db_default.version, db_default.name) or \
                self._ticket_custom_needs_upgrade()
 
-    def upgrade_environment(self, db):
+    def upgrade_environment(self, db=None):
         dbm = DatabaseManager(self.env)
         if dbm.needs_upgrade(db_default.version, db_default.name):
             if not dbm.get_database_version(db_default.name):
@@ -71,7 +71,7 @@ class MasterTicketsSystem(Component):
 
     def ticket_changed(self, tkt, comment, author, old_values):
         links = self._prepare_links(tkt)
-        links.save(author, comment, tkt.time_changed)
+        links.save(author, comment, tkt['changetime'])
 
     def ticket_deleted(self, tkt):
         links = TicketLinks(self.env, tkt)
