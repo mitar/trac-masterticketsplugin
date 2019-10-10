@@ -47,7 +47,7 @@ class MasterTicketsModule(Component):
         doc="If enabled, use ghostscript to produce nicer output.")
 
     acceptable_formats = ListOption('mastertickets', 'acceptable_formats',
-                                    default='png,cmapx', sep=',',
+        default='png,cmapx', sep=',',
         doc="""The formats that may be chosen; execute dot -T? for a
             list of options.""")
 
@@ -57,7 +57,7 @@ class MasterTicketsModule(Component):
     opened_color = Option('mastertickets', 'opened_color', default='red',
         doc="Color of opened tickets")
 
-    show_key = Option('mastertickets', 'show_key', default=False,
+    show_key = BoolOption('mastertickets', 'show_key', default=False,
         doc="Show a key for open/closed nodes")
 
     closed_text = Option('mastertickets', 'closed_text', default='Done',
@@ -66,11 +66,11 @@ class MasterTicketsModule(Component):
     opened_text = Option('mastertickets', 'opened_text', default='ToDo',
         doc="Text for key showing opened tickets")
 
-    highlight_target = Option('mastertickets', 'highlight_target',
-                              default=False,
+    highlight_target = BoolOption('mastertickets', 'highlight_target',
+        default=False,
         doc="Highlight target tickets in graph")
 
-    full_graph = Option('mastertickets', 'full_graph', default=False,
+    full_graph = BoolOption('mastertickets', 'full_graph', default=False,
         doc="Show full dep. graph, not just direct blocking links")
 
     graph_direction = ChoiceOption('mastertickets', 'graph_direction',
