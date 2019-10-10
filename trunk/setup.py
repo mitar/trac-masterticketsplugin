@@ -13,6 +13,10 @@
 import os
 from setuptools import find_packages, setup
 
+f = open(os.path.join(os.path.dirname(__file__), 'README'))
+long_description = f.read()
+f.close()
+
 setup(
     name='TracMasterTickets',
     version='4.0.3',
@@ -32,8 +36,7 @@ setup(
     maintainer='Ryan J Ollos',
     maintainer_email='ryan.j.ollos@gmail.com',
     description='Provides ticket dependencies and master tickets.',
-    long_description=open(os.path.join(os.path.dirname(__file__),
-                                       'README')).read(),
+    long_description=long_description,
     license='BSD 3-Clause',
     keywords='trac plugin ticket dependencies master',
     url='https://trac-hacks.org/wiki/MasterTicketsPlugin',
