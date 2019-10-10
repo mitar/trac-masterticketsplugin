@@ -19,7 +19,7 @@ f.close()
 
 setup(
     name='TracMasterTickets',
-    version='4.0.3',
+    version='4.0.4',
     packages=find_packages(exclude=['*.tests']),
     package_data={
         'mastertickets': [
