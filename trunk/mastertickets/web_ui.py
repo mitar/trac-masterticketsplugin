@@ -17,6 +17,7 @@ import subprocess
 
 from trac.config import BoolOption, ChoiceOption, ListOption, Option
 from trac.core import Component, TracError, implements
+from trac.mimeview import Mimeview
 from trac.resource import ResourceNotFound, get_resource_summary
 from trac.ticket.model import Ticket
 from trac.ticket.query import Query
@@ -47,9 +48,11 @@ class MasterTicketsModule(Component):
         doc="If enabled, use ghostscript to produce nicer output.")
 
     acceptable_formats = ListOption('mastertickets', 'acceptable_formats',
-        default='png,cmapx', sep=',',
-        doc="""The formats that may be chosen; execute dot -T? for a
-            list of options.""")
+        default='svg,png,cmapx', sep=',',
+        doc="""The formats that may be chosen. Execute dot -T? for a
+            list of options. The first format in the list will be used
+            by default. If the list is empty, the png format will be used.
+            """)
 
     closed_color = Option('mastertickets', 'closed_color', default='green',
         doc="Color of closed tickets")
@@ -202,7 +205,7 @@ class MasterTicketsModule(Component):
 
     def match_request(self, req):
         match = re.match(r'^/depgraph/(?P<realm>ticket|milestone)/'
-                         r'(?P<id>((?!depgraph.png).)+)(/depgraph.png)?$',
+                         r'(?P<id>((?!depgraph).)+)(/depgraph)?$',
                          req.path_info)
         if match:
             req.args['realm'] = match.group('realm')
@@ -240,7 +243,7 @@ class MasterTicketsModule(Component):
             label_summary = int(req.args.get('summary'))
 
         g = self._build_graph(req, tkt_ids, label_summary=label_summary)
-        if req.path_info.endswith('/depgraph.png') or 'format' in req.args:
+        if req.path_info.endswith('/depgraph') or 'format' in req.args:
             format_ = req.args.get('format')
             if format_ == 'text':
                 # In case g.__str__ returns unicode, convert it in ascii
@@ -248,7 +251,6 @@ class MasterTicketsModule(Component):
                          'text/plain')
             elif format_ == 'debug':
                 import pprint
-
                 req.send(
                     pprint.pformat(
                         [TicketLinks(self.env, tkt_id) for tkt_id in tkt_ids]
@@ -256,7 +258,9 @@ class MasterTicketsModule(Component):
                     'text/plain')
             elif format_ is not None:
                 if format_ in self.acceptable_formats:
-                    req.send(g.render(self.dot_path, format_), 'text/plain')
+                    mimetype = Mimeview(self.env). \
+                               mime_map.get(format_, 'text/plain')
+                    req.send(g.render(self.dot_path, format_), mimetype)
                 else:
                     raise TracError(_("The %(format)s format is not allowed.",
                                       format=format_))
@@ -294,6 +298,10 @@ class MasterTicketsModule(Component):
                 data['ticket'] = id_
                 add_ctxtnav(req, 'Back to Ticket #%s' % id_,
                             req.href.ticket(id_))
+            try:
+                data['format'] = self.acceptable_formats[0]
+            except IndexError:
+                data['format'] = 'png'
             data['graph'] = g
             data['graph_render'] = functools.partial(g.render, self.dot_path)
             data['use_gs'] = self.use_gs
