@@ -213,6 +213,7 @@ class MasterTicketsModule(Component):
             return True
 
     def process_request(self, req):
+        req.perm.require('TICKET_VIEW')
         realm = req.args['realm']
         id_ = req.args['id']
 
