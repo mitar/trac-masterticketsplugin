@@ -1,3 +1,3 @@
-$(function () {
-  $("#action_resolve_resolve_resolution").find("option[text='fixed']").attr('disabled', 'disabled').removeAttr('selected');
+jQuery(function ($) {
+  $("#action_resolve_resolve_resolution").find("option[value='fixed']").attr('disabled', 'disabled').removeAttr('selected');
 });
