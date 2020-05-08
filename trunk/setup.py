@@ -15,7 +15,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='TracMasterTickets',
-    version='4.0.4',
+    version='4.0.5',
     packages=find_packages(exclude=['*.tests']),
     package_data={
         'mastertickets': [
