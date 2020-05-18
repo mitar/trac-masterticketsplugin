@@ -14,6 +14,7 @@ import graphviz
 import os
 import re
 import subprocess
+import textwrap
 
 from trac.config import BoolOption, ChoiceOption, ListOption, Option
 from trac.core import Component, TracError, implements
@@ -339,14 +340,16 @@ class MasterTicketsModule(Component):
             tkt = link.tkt
             node = g[tkt.id]
             if label_summary:
-                node['label'] = u'#%s %s' % (tkt.id, tkt['summary'])
+                label = u'#%s %s' % (tkt.id, tkt['summary'])
             else:
-                node['label'] = u'#%s' % tkt.id
+                label = u'#%s' % tkt.id
+            node['label'] = '\n'.join(textwrap.wrap(label, 30))
             node['fillcolor'] = tkt['status'] == 'closed' and \
                                 self.closed_color or self.opened_color
             node['URL'] = req.href.ticket(tkt.id)
             node['alt'] = u'Ticket #%s' % tkt.id
-            node['tooltip'] = escape(tkt['summary'])
+            node['tooltip'] = escape('#%s (%s) %s' % (tkt.id, tkt['status'],
+                                                      tkt['summary']))
             if self.highlight_target and tkt.id in tkt_ids:
                 node['penwidth'] = 3
 
