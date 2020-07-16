@@ -61,8 +61,12 @@ class TicketLinks(object):
             lst.append(str(self.tkt.id))
 
         def remove_id(lst):
-            lst.remove(str(self.tkt.id))
+            try:
+                lst.remove(str(self.tkt.id))
+            except ValueError:
+                pass
 
+        ref_tkts = {}
         with self.env.db_transaction as db:
             for new_ids, old_ids, field, sourcedest in to_check:
                 for n in new_ids | old_ids:
@@ -81,84 +85,22 @@ class TicketLinks(object):
                         update_field = remove_id
 
                     if update_field is not None:
-                        old_value = None
-                        ticket_custom_row_exists = False
                         for old_value, in db("""
                                 SELECT value FROM ticket_custom
                                 WHERE ticket=%s AND name=%s
                                 """, (n, field)):
-                            ticket_custom_row_exists = True
-                            break
-                        if old_value:
                             new_value = to_list(old_value)
+                            break
                         else:
                             new_value = []
                         update_field(new_value)
                         new_value = ', '.join(sorted(new_value,
                                                      key=lambda x: int(x)))
+                        ref_tkt = ref_tkts.setdefault(n, Ticket(self.env, n))
+                        ref_tkt[field] = new_value
 
-                        # ticket, time and field must be unique for database
-                        # integrity. The TicketImportPlugin assigns the same
-                        # changetime to all ticket if not specified, which
-                        # was causing an IntegrityError (#10194).
-                        changelog = Ticket(self.env, n).get_changelog(when)
-                        if any(field in cl for cl in changelog):
-                            db("""UPDATE ticket_change
-                                  SET author=%s, oldvalue=%s, newvalue=%s
-                                  WHERE ticket=%s AND time=%s AND field=%s
-                                  """, (author, old_value, new_value, n,
-                                        when_ts, field))
-                        else:
-                            db("""INSERT INTO ticket_change
-                                   (ticket, time, author, field,
-                                    oldvalue, newvalue)
-                                  VALUES (%s, %s, %s, %s, %s, %s)
-                                  """, (n, when_ts, author, field,
-                                        old_value, new_value))
-
-                        # Add comment to referenced ticket if a comment
-                        # hasn't already been added
-                        if comment and \
-                                not any('comment' in entry
-                                        for entry
-                                        in self.tkt.get_changelog(when)):
-                            db("""INSERT INTO ticket_change
-                                   (ticket, time, author, field,
-                                    oldvalue, newvalue)
-                                  VALUES (%s, %s, %s, %s, %s, %s)
-                                  """, (n, when_ts, author, 'comment', '',
-                                        '(In #%s) %s'
-                                        % (self.tkt.id, comment)))
-
-                        if ticket_custom_row_exists:
-                            db("""UPDATE ticket_custom SET value=%s
-                                  WHERE ticket=%s AND name=%s
-                                  """, (new_value, n, field))
-                        else:
-                            db("""INSERT INTO ticket_custom
-                                   (ticket, name, value)
-                                  VALUES (%s, %s, %s)
-                                  """, (n, field, new_value))
-
-                        # Refresh the changetime to prevent concurrent edits.
-                        db("UPDATE ticket SET changetime=%s WHERE id=%s",
-                           (when_ts, n))
-
-        # cursor.execute('DELETE FROM mastertickets
-        #                'WHERE source=%s OR dest=%s',
-        #                (self.tkt.id, self.tkt.id))
-        # data = []
-        # for tkt in self.blocking:
-        #     if isinstance(tkt, Ticket):
-        #         tkt = tkt.id
-        #     data.append((self.tkt.id, tkt))
-        # for tkt in self.blocked_by:
-        #     if isinstance(tkt, Ticket):
-        #         tkt = tkt.id
-        #     data.append((tkt, self.tkt.id))
-        #
-        # cursor.executemany('INSERT INTO mastertickets (source, dest) '
-        #                    'VALUES (%s, %s)', data)
+            for tkt in ref_tkts.itervalues():
+                tkt.save_changes(author, None, when)
 
     def __nonzero__(self):
         return bool(self.blocking) or bool(self.blocked_by)
