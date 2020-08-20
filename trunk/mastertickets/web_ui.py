@@ -343,7 +343,7 @@ class MasterTicketsModule(Component):
                 label = u'#%s %s' % (tkt.id, tkt['summary'])
             else:
                 label = u'#%s' % tkt.id
-            node['label'] = '\n'.join(textwrap.wrap(label, 30))
+            node['label'] = escape('\n'.join(textwrap.wrap(label, 30)))
             node['fillcolor'] = tkt['status'] == 'closed' and \
                                 self.closed_color or self.opened_color
             node['URL'] = req.href.ticket(tkt.id)
